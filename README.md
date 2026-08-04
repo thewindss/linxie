@@ -1,17 +1,4 @@
-
-<html lang="en">
-
-<head>
-    <样式>
-正文{
-            : (#60b3c830%, #f9c9ab
-            颜色: 黑色;
-字体系列：, Helvetica，无衬线字体；
-            margin: 0;
-            最小高度: 100视口高度单位;
-        }
-        
-        .all {display: flex;
+                .all {display: flex;
             flex-wrap: wrap;
             background: #f9c9ab;
             max-width: 800px;
@@ -62,32 +49,7 @@
         }
         h5 {font-weight: lighter;
         font-size:small}
-.first {
-background: #a5dfed;
-width: 100px;
-height: auto;
-margin: auto;
-border-radius: 10px;
-box-shadow:0 4px 10px rgba(0, 0, 0, 0.15);}
-        .all img {
-宽度：310px；
-圆角半径：15px；
-内边距：8px；
-右边距：30px；
-颜色：rgb(75, 51, 15)；
-文本居中；}
-.first h4 {文本居中；
-margin-right: 15px；}
-.thetwo { display: flex；   
-        flex-wrap: wrap;
-    justify-content: center;
-background: #a5dfed;
-width: 100px;
-height: auto;
-margin: auto;
-border-radius: 10px;
-box-shadow:0 4px 10px rgba(0, 0, 0, 0.15);}
-    </样式>
+
 </head>
 
 <body>
