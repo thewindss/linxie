@@ -1,28 +1,30 @@
-/* 1. 全局字体和背景颜色 */
 body {
-    背景颜色: #f0e6d2; /* 米黄色背景 */
-    字体系列: 幼圆, 无衬线字体;
-    文本对齐: 居中; /* 让所有文字居中 */
-    内边距: 50像素;
+background: linear-gradient(#60b3c8 30%, #f9c9ab);
+color: black;
+font-family: Arial, Helvetica, sans-serif;
+margin: 0;
+min-height: 100vh;
 }
-
-/* 2. 标题样式 */
 h1 {
-    颜色：古董白;
-    字体大小: 48像素;
-    text-shadow: 2像素 2像素 4像素 rgba(0,0,0,0.1); /* 加一点阴影 */
+color: antiquewhite;
+font-family: 幼圆;
+text-align: center;
 }
 
-/* 3. 按钮样式 */
-button {
-    background-color: #d43f34; /* 红色背景 */
-    颜色: 白色;
-    内边距: 10像素 20像素;
-    边框: 无;
-    border-radius: 5像素;
-    cursor: pointer; /* 鼠标悬停变小手 */
+h3 {
+color: bisque;
+font-size: medium;
+font-family: 幼圆;
+text-align: center;
+font-weight: lighter;
 }
-
-button:hover {
-    背景颜色: #b53228; /* 悬停时颜色变深 */
+h4 {
+color: rgb(64, 39, 10);
+font-size: medium;
+font-family: 幼圆;
+text-align: center;
+font-weight: lighter;
+}
+h5 {font-weight: lighter;
+font-size:small
 }
