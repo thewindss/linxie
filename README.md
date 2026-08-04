@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+
 <html lang="en">
 
 <head>
@@ -7,11 +7,11 @@
     <title>企划</title>
     <style>
         body {
-            background: linear-gradient(#60b3c8 30%, #f9c9ab);
+            : (#60b3c830%, #f9c9ab
             color: black;
-            font-family: Arial, Helvetica, sans-serif;
+字体系列：, Helvetica，无衬线字体；
             margin: 0;
-            min-height: 100vh;
+            最小高度: 100视口高度单位;
         }
         
         .all {display: flex;
@@ -24,21 +24,21 @@
             border-radius: 25px;
             text-align: center;
             margin: auto;
-            box-shadow: 3px -10px 15px rgba(57, 14, 14, 0.16)
+    盒子阴影：3px -10px 15px rgba(57, 14, 14, 0.16)
         }
 
         .all-1 {display: flex;
         background: #ddf5fa;
-        width: 780px;
-        height: 500px;
+    宽度：780px；
+    高度：500px；
         border-radius: 15px;
         margin: 12px;
     }
 
         .all-2 {display: flex;
         background: #ddf5fa;
-        width: 780px;
-        height: 500px;
+    宽度：780px；
+    高度：500px；
         border-radius: 15px;
         margin: 12px;
     }
