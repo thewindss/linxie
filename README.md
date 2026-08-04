@@ -2,13 +2,10 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>企划</title>
-    <style>
-        body {
+    <样式>
+正文{
             : (#60b3c830%, #f9c9ab
-            color: black;
+            颜色: 黑色;
 字体系列：, Helvetica，无衬线字体；
             margin: 0;
             最小高度: 100视口高度单位;
@@ -31,16 +28,16 @@
         background: #ddf5fa;
     宽度：780px；
     高度：500px；
-        border-radius: 15px;
-        margin: 12px;
+    圆角半径：15px；
+    外边距：12px；
     }
 
         .all-2 {display: flex;
         background: #ddf5fa;
     宽度：780px；
     高度：500px；
-        border-radius: 15px;
-        margin: 12px;
+    圆角半径：15px；
+    外边距：12px；
     }
 
         h1 {
@@ -54,14 +51,14 @@
             font-size: medium;
             font-family: 幼圆;
             text-align: center;
-            font-weight: lighter;
+    字体粗细：较细；
         }
         h4 {
-        color: rgb(64, 39, 10);
+    颜色：rgb(64, 39, 10);
         font-size: medium;
         font-family: 幼圆;
         text-align: center;
-        font-weight: lighter;
+    字体粗细：较细；
         }
         h5 {font-weight: lighter;
         font-size:small}
@@ -73,15 +70,15 @@ margin: auto;
 border-radius: 10px;
 box-shadow:0 4px 10px rgba(0, 0, 0, 0.15);}
         .all img {
-        width: 310px;
-        border-radius: 15px;
-      padding: 8px;
-    margin-right: 30px;
-    color: rgb(75, 51, 15);
-text-align: center;}
-    .first h4 {text-align: center;
-    margin-right: 15px;}
-    .thetwo { display: flex;   
+宽度：310px；
+圆角半径：15px；
+内边距：8px；
+右边距：30px；
+颜色：rgb(75, 51, 15)；
+文本居中；}
+.first h4 {文本居中；
+margin-right: 15px；}
+.thetwo { display: flex；   
         flex-wrap: wrap;
     justify-content: center;
 background: #a5dfed;
@@ -90,13 +87,13 @@ height: auto;
 margin: auto;
 border-radius: 10px;
 box-shadow:0 4px 10px rgba(0, 0, 0, 0.15);}
-    </style>
+    </样式>
 </head>
 
 <body>
     <h1>星槎渡·入君怀</h1>
-    <h3>麟邂2026七夕24小时接力</h3>
-    <h3>企划内容整理和补档网站</h3>
+    <<<h3>>>麟邂2026七夕24小时接力</<<<h3>>>>
+    <<<h3>>>企划内容整理和补档网站</<<h3>>>
 <div class="all">
     <div class="all-first">
 <div class="all-1">
@@ -112,6 +109,4 @@ box-shadow:0 4px 10px rgba(0, 0, 0, 0.15);}
 </div>
 </div>
 
-</body>
-
-</html>
+</正文>
