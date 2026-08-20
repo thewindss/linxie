@@ -445,7 +445,55 @@ text-align: center;}
     <h1>边际：手书</h1>
 </div>
 </div>
+<div class="video-wrapper">
 
+        <div class="video-container" id="videoContainer">
+
+            <!-- ===== 视频元素 ===== -->
+            <!--
+                替换视频源：修改 src 属性为你自己的视频地址。
+                支持格式：mp4, webm, ogg
+                建议提供多个格式以兼容不同浏览器。
+                可使用 poster 属性设置视频封面图。
+            -->
+            <video id="myVideo"
+            src="苦巧克力装饰完稿(2)(2).mp4"
+            preload="metadata"
+            playsinline
+            >
+        </video>
+
+        <!-- ===== 中央播放按钮 ===== -->
+        <button class="play-btn" id="playBtn" aria-label="播放视频">
+            <span class="play-icon"></span>
+        </button>
+
+        <!-- ===== 底部控制栏 ===== -->
+        <div class="video-controls" id="videoControls">
+
+            <!-- 小播放/暂停按钮 -->
+            <button class="ctrl-btn" id="ctrlPlayBtn" aria-label="播放/暂停">
+                <svg viewBox="0 0 24 24">
+                    <polygon points="5,3 19,12 5,21" />
+                </svg>
+            </button>
+
+            <!-- 进度条 -->
+            <div class="progress-bar" id="progressBar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+
+            <!-- 时间显示 -->
+            <span class="time-display" id="timeDisplay">0:00 / 0:00</span>
+        </div>
+
+        <!-- 全屏小提示 -->
+        <span class="fullscreen-hint">双击全屏</span>
+
+    </div>
+
+</div>
+</div>
 <div class="all-bianji">
     <div class="bianjiwor">
         <h1>1:00</h1>
