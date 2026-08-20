@@ -5,10 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>企划 · 星槎渡</title>
-    
-    <!-- ⬇️ 新增：引入 marked.js 库（用于将 Markdown 转为 HTML） ⬇️ -->
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <!-- ⬆️ 新增结束 ⬆️ -->
+
+    <!-- 引入 marked.js 库 -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js">
+    </script>
 
     <style>
         /* ===== 全局重置 & 背景 ===== */
@@ -39,7 +39,7 @@
             color: antiquewhite;
             font-family: 幼圆, 'Segoe UI', sans-serif;
             font-size: 2.6rem;
-            text-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
             letter-spacing: 4px;
             margin-bottom: 4px;
         }
@@ -54,7 +54,7 @@
             display: inline-block;
             padding: 6px 24px;
             border-radius: 40px;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
         }
 
         /* ===== 卡片容器 ===== */
@@ -79,7 +79,7 @@
             border-radius: 24px;
             padding: 18px 16px 22px;
             backdrop-filter: blur(2px);
-            box-shadow: 0 4px 16px rgba(0,0,0,0.04);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
             transition: transform 0.2s;
         }
         .time-block:hover {
@@ -394,13 +394,13 @@
             display: block;
         }
 
-        /* ⬇️ 新增：文章展示样式 ⬇️ */
+        /* ===== 文章展示样式（含展开/收起） ===== */
         .article-container {
             background: rgba(255, 248, 240, 0.8);
             backdrop-filter: blur(4px);
             padding: 24px 30px;
             border-radius: 16px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
             width: 100%;
             margin: 8px 0;
         }
@@ -458,6 +458,80 @@
             margin-bottom: 4px;
         }
 
+        /* ===== 展开/收起按钮 ===== */
+        .toggle-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin: 16px auto 4px;
+            padding: 10px 28px;
+            background: rgba(155, 109, 41, 0.12);
+            border: 2px solid #9b6d29;
+            border-radius: 40px;
+            color: #5a3d1a;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 幼圆, 'Segoe UI', sans-serif;
+            letter-spacing: 1px;
+            background: rgba(255, 248, 240, 0.7);
+            backdrop-filter: blur(4px);
+        }
+
+        .toggle-btn:hover {
+            background: #9b6d29;
+            color: #fff;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(155, 109, 41, 0.3);
+        }
+
+        .toggle-btn:active {
+            transform: scale(0.96);
+        }
+
+        .toggle-btn .arrow {
+            display: inline-block;
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            font-size: 1.2rem;
+            line-height: 1;
+        }
+
+        .toggle-btn .arrow.open {
+            transform: rotate(180deg);
+        }
+
+        /* 文章内容包装器（用于控制显示） */
+        .article-body {
+            position: relative;
+            overflow: hidden;
+            transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .article-body.collapsed {
+            max-height: 320px;
+            /* 约300字的高度，配合裁剪 */
+        }
+
+        .article-body.expanded {
+            max-height: none;
+            /* 展开显示全部 */
+        }
+
+        /* 文章底部渐变遮罩（仅折叠时显示） */
+        .article-body.collapsed::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 80px;
+            background: linear-gradient(to bottom, transparent, rgba(255, 248, 240, 0.95));
+            pointer-events: none;
+            border-radius: 0 0 16px 16px;
+        }
+
         /* 加载状态 */
         .loading {
             text-align: center;
@@ -472,10 +546,18 @@
         }
 
         @keyframes dots {
-            0% { content: ''; }
-            25% { content: '·'; }
-            50% { content: '··'; }
-            75% { content: '···'; }
+            0% {
+                content: '';
+            }
+            25% {
+                content: '·';
+            }
+            50% {
+                content: '··';
+            }
+            75% {
+                content: '···';
+            }
         }
 
         .error {
@@ -496,12 +578,23 @@
             .article-container {
                 padding: 16px 18px;
             }
-            .article-container h1 { font-size: 1.4rem; }
-            .article-container h2 { font-size: 1.2rem; }
-            .article-container p { font-size: 0.95rem; }
+            .article-container h1 {
+                font-size: 1.4rem;
+            }
+            .article-container h2 {
+                font-size: 1.2rem;
+            }
+            .article-container p {
+                font-size: 0.95rem;
+            }
+            .article-body.collapsed {
+                max-height: 260px;
+            }
+            .toggle-btn {
+                padding: 8px 20px;
+                font-size: 0.9rem;
+            }
         }
-        /* ⬆️ 新增结束 ⬆️ */
-
     </style>
 </head>
 
@@ -516,11 +609,10 @@
     <!-- ===== 卡片主体 ===== -->
     <div class="all">
 
-        <!-- ⬇️ 新增：文章展示区域（放在最前面） ⬇️ -->
+        <!-- 文章展示区域 -->
         <div class="article-container" id="content">
             <div class="loading">📖 文章加载中</div>
         </div>
-        <!-- ⬆️ 新增结束 ⬆️ -->
 
         <!-- ===== 0:00 时间块 ===== -->
         <div class="time-block">
@@ -535,327 +627,375 @@
 
                     <!-- 视频元素 -->
                     <video id="myVideo"
-                           src="苦巧克力装饰完稿(2)(2).mp4"
-                           preload="metadata"
-                           playsinline
-                           poster="https://www.w3schools.com/html/pic_bullwinkle.jpg"
-                    >
-                        您的浏览器不支持 HTML5 视频。
-                    </video>
+                    src="苦巧克力装饰完稿(2)(2).mp4"
+                    preload="metadata"
+                    playsinline
+                    poster="https://www.w3schools.com/html/pic_bullwinkle.jpg">
+                    您的浏览器不支持 HTML5 视频。
+                </video>
 
-                    <!-- 中央播放按钮 -->
-                    <button class="play-btn" id="playBtn" aria-label="播放视频">
-                        <span class="play-icon"></span>
-                    </button>
+                <!-- 中央播放按钮 -->
+                <button class="play-btn" id="playBtn" aria-label="播放视频">
+                    <span class="play-icon"></span>
+                </button>
 
-                    <!-- 底部控制栏 -->
-                    <div class="video-controls" id="videoControls">
-                        <button class="ctrl-btn" id="ctrlPlayBtn" aria-label="播放/暂停">
-                            <svg viewBox="0 0 24 24">
-                                <polygon points="5,3 19,12 5,21" />
-                            </svg>
-                        </button>
-                        <div class="progress-bar" id="progressBar">
-                            <div class="progress-fill" id="progressFill"></div>
-                        </div>
-                        <span class="time-display" id="timeDisplay">0:00 / 0:00</span>
-                    </div>
-
-                    <!-- 全屏提示 -->
-                    <span class="fullscreen-hint">⛶ 双击全屏</span>
-
-                    <!-- 错误提示 -->
-                    <div class="video-error" id="videoError">⚠️ 视频加载失败，请检查地址</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- ===== 1:00 时间块（占位，可扩展） ===== -->
-        <div class="time-block">
-            <div class="time-header">
-                <h1>1:00</h1>
-                <div class="sub-label">待补充 · 敬请期待</div>
-            </div>
-            <div style="text-align:center; padding:20px 0; color:#7a5a2a; font-family:幼圆; background:rgba(255,255,240,0.4); border-radius:20px;">
-                🌸 更多内容即将上线
-            </div>
-        </div>
-
-    </div>
-
-    <!-- ========================================================== -->
-    <!-- JavaScript：视频控制逻辑                                     -->
-    <!-- ========================================================== -->
-    <script>
-        (function() {
-            'use strict';
-
-            // ---------- DOM 引用 ----------
-            const video = document.getElementById('myVideo');
-            const container = document.getElementById('videoContainer');
-            const playBtn = document.getElementById('playBtn');
-            const ctrlPlayBtn = document.getElementById('ctrlPlayBtn');
-            const progressBar = document.getElementById('progressBar');
-            const progressFill = document.getElementById('progressFill');
-            const timeDisplay = document.getElementById('timeDisplay');
-            const errorEl = document.getElementById('videoError');
-
-            // ---------- 状态 ----------
-            let isDragging = false;
-            let controlsTimeout = null;
-
-            // ---------- 辅助函数 ----------
-            function formatTime(seconds) {
-                if (!seconds || isNaN(seconds) || seconds < 0) return '0:00';
-                const mins = Math.floor(seconds / 60);
-                const secs = Math.floor(seconds % 60);
-                return mins + ':' + (secs < 10 ? '0' : '') + secs;
-            }
-
-            function updateProgress() {
-                if (!isDragging) {
-                    const percent = video.duration ? (video.currentTime / video.duration) * 100 : 0;
-                    progressFill.style.width = Math.min(percent, 100) + '%';
-                }
-                const current = formatTime(video.currentTime);
-                const total = formatTime(video.duration);
-                timeDisplay.textContent = current + ' / ' + total;
-            }
-
-            function togglePlay() {
-                if (video.paused) {
-                    video.play().catch(function(err) {
-                        console.warn('播放失败:', err);
-                    });
-                } else {
-                    video.pause();
-                }
-            }
-
-            function updateUI() {
-                const isPaused = video.paused;
-                if (isPaused) {
-                    playBtn.classList.remove('hidden');
-                    ctrlPlayBtn.innerHTML = `
+                <!-- 底部控制栏 -->
+                <div class="video-controls" id="videoControls">
+                    <button class="ctrl-btn" id="ctrlPlayBtn" aria-label="播放/暂停">
                         <svg viewBox="0 0 24 24">
                             <polygon points="5,3 19,12 5,21" />
                         </svg>
-                    `;
-                    ctrlPlayBtn.setAttribute('aria-label', '播放');
-                    container.classList.remove('playing');
-                } else {
-                    playBtn.classList.add('hidden');
-                    ctrlPlayBtn.innerHTML = `
-                        <svg viewBox="0 0 24 24">
-                            <rect x="6" y="4" width="4" height="16" />
-                            <rect x="14" y="4" width="4" height="16" />
-                        </svg>
-                    `;
-                    ctrlPlayBtn.setAttribute('aria-label', '暂停');
-                    container.classList.add('playing');
-                }
+                    </button>
+                    <div class="progress-bar" id="progressBar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <span class="time-display" id="timeDisplay">0:00 / 0:00</span>
+                </div>
+
+                <!-- 全屏提示 -->
+                <span class="fullscreen-hint">⛶ 双击全屏</span>
+
+                <!-- 错误提示 -->
+                <div class="video-error" id="videoError">⚠️ 视频加载失败，请检查地址</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 1:00 时间块（占位，可扩展） ===== -->
+    <div class="time-block">
+        <div class="time-header">
+            <h1>1:00</h1>
+            <div class="sub-label">待补充 · 敬请期待</div>
+        </div>
+        <div style="text-align:center; padding:20px 0; color:#7a5a2a; font-family:幼圆; background:rgba(255,255,240,0.4); border-radius:20px;">
+            🌸 更多内容即将上线
+        </div>
+    </div>
+
+</div>
+
+<!-- ========================================================== -->
+<!-- JavaScript：视频控制逻辑 + 文章展开/收起                     -->
+<!-- ========================================================== -->
+<script>
+    (function() {
+        'use strict';
+
+        // ---------- DOM 引用 ----------
+        const video = document.getElementById('myVideo');
+        const container = document.getElementById('videoContainer');
+        const playBtn = document.getElementById('playBtn');
+        const ctrlPlayBtn = document.getElementById('ctrlPlayBtn');
+        const progressBar = document.getElementById('progressBar');
+        const progressFill = document.getElementById('progressFill');
+        const timeDisplay = document.getElementById('timeDisplay');
+        const errorEl = document.getElementById('videoError');
+
+        // ---------- 状态 ----------
+        let isDragging = false;
+        let controlsTimeout = null;
+
+        // ---------- 辅助函数 ----------
+        function formatTime(seconds) {
+            if (!seconds || isNaN(seconds) || seconds < 0) return '0:00';
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return mins + ':' + (secs < 10 ? '0' : '') + secs;
+        }
+
+        function updateProgress() {
+            if (!isDragging) {
+                const percent = video.duration ? (video.currentTime / video.duration) * 100 : 0;
+                progressFill.style.width = Math.min(percent, 100) + '%';
             }
+            const current = formatTime(video.currentTime);
+            const total = formatTime(video.duration);
+            timeDisplay.textContent = current + ' / ' + total;
+        }
 
-            // ---------- 事件绑定 ----------
-
-            // 中央大按钮
-            playBtn.addEventListener('click', function(e) {
-                e.stopPropagation();
-                togglePlay();
-            });
-
-            // 控制栏小按钮
-            ctrlPlayBtn.addEventListener('click', function(e) {
-                e.stopPropagation();
-                togglePlay();
-            });
-
-            // 点击容器（非控制栏区域）
-            container.addEventListener('click', function(e) {
-                if (e.target.closest('.video-controls') || e.target.closest('.play-btn')) {
-                    return;
-                }
-                togglePlay();
-            });
-
-            // 视频事件
-            video.addEventListener('play', function() {
-                updateUI();
-                clearTimeout(controlsTimeout);
-            });
-            video.addEventListener('pause', function() {
-                updateUI();
-            });
-            video.addEventListener('ended', function() {
-                progressFill.style.width = '0%';
-                timeDisplay.textContent = '0:00 / ' + formatTime(video.duration);
-                updateUI();
-                container.classList.remove('playing');
-            });
-
-            video.addEventListener('loadedmetadata', function() {
-                updateProgress();
-                if (video.duration && isFinite(video.duration)) {
-                    timeDisplay.textContent = '0:00 / ' + formatTime(video.duration);
-                }
-                errorEl.classList.remove('show');
-            });
-
-            video.addEventListener('timeupdate', function() {
-                if (!isDragging) {
-                    updateProgress();
-                }
-            });
-
-            // 进度条点击
-            progressBar.addEventListener('click', function(e) {
-                const rect = progressBar.getBoundingClientRect();
-                let percent = (e.clientX - rect.left) / rect.width;
-                percent = Math.min(Math.max(percent, 0), 1);
-                if (video.duration && isFinite(video.duration)) {
-                    video.currentTime = percent * video.duration;
-                    updateProgress();
-                }
-            });
-
-            // 进度条拖拽（鼠标）
-            progressBar.addEventListener('mousedown', function(e) {
-                isDragging = true;
-                document.body.style.userSelect = 'none';
-                const rect = progressBar.getBoundingClientRect();
-                let percent = (e.clientX - rect.left) / rect.width;
-                percent = Math.min(Math.max(percent, 0), 1);
-                if (video.duration && isFinite(video.duration)) {
-                    video.currentTime = percent * video.duration;
-                    progressFill.style.width = percent * 100 + '%';
-                }
-                timeDisplay.textContent = formatTime(video.currentTime) + ' / ' + formatTime(video.duration);
-            });
-
-            document.addEventListener('mousemove', function(e) {
-                if (!isDragging) return;
-                const rect = progressBar.getBoundingClientRect();
-                let percent = (e.clientX - rect.left) / rect.width;
-                percent = Math.min(Math.max(percent, 0), 1);
-                if (video.duration && isFinite(video.duration)) {
-                    video.currentTime = percent * video.duration;
-                    progressFill.style.width = percent * 100 + '%';
-                }
-                timeDisplay.textContent = formatTime(video.currentTime) + ' / ' + formatTime(video.duration);
-            });
-
-            document.addEventListener('mouseup', function() {
-                if (isDragging) {
-                    isDragging = false;
-                    document.body.style.userSelect = '';
-                    updateProgress();
-                }
-            });
-
-            // 进度条拖拽（触摸）
-            progressBar.addEventListener('touchstart', function(e) {
-                e.preventDefault();
-                isDragging = true;
-                const touch = e.touches[0];
-                const rect = progressBar.getBoundingClientRect();
-                let percent = (touch.clientX - rect.left) / rect.width;
-                percent = Math.min(Math.max(percent, 0), 1);
-                if (video.duration && isFinite(video.duration)) {
-                    video.currentTime = percent * video.duration;
-                    progressFill.style.width = percent * 100 + '%';
-                }
-                timeDisplay.textContent = formatTime(video.currentTime) + ' / ' + formatTime(video.duration);
-            }, { passive: false });
-
-            document.addEventListener('touchmove', function(e) {
-                if (!isDragging) return;
-                const touch = e.touches[0];
-                const rect = progressBar.getBoundingClientRect();
-                let percent = (touch.clientX - rect.left) / rect.width;
-                percent = Math.min(Math.max(percent, 0), 1);
-                if (video.duration && isFinite(video.duration)) {
-                    video.currentTime = percent * video.duration;
-                    progressFill.style.width = percent * 100 + '%';
-                }
-                timeDisplay.textContent = formatTime(video.currentTime) + ' / ' + formatTime(video.duration);
-            }, { passive: true });
-
-            document.addEventListener('touchend', function() {
-                if (isDragging) {
-                    isDragging = false;
-                    updateProgress();
-                }
-            });
-
-            // 双击全屏
-            container.addEventListener('dblclick', function() {
-                if (video.requestFullscreen) {
-                    video.requestFullscreen().catch(function() {});
-                } else if (video.webkitRequestFullscreen) {
-                    video.webkitRequestFullscreen();
-                }
-            });
-
-            // 键盘空格
-            document.addEventListener('keydown', function(e) {
-                if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
-                if (e.key === ' ' || e.key === 'Space') {
-                    e.preventDefault();
-                    togglePlay();
-                }
-            });
-
-            // 视频加载错误
-            video.addEventListener('error', function() {
-                errorEl.classList.add('show');
-                console.warn('视频加载失败，请检查 src 地址。');
-            });
-
-            // ---------- 初始化 ----------
-            updateUI();
-            if (video.readyState >= 1) {
-                updateProgress();
-            } else {
-                timeDisplay.textContent = '0:00 / 0:00';
-            }
-
-            console.log('✅ 视频播放器已初始化 (企划嵌入版)');
-        })();
-
-        // ⬇️ 新增：加载 article.md 文章的 JavaScript（修复版） ⬇️
-        (function() {
-            const container = document.getElementById('content');
-
-            fetch('article.md')
-                .then(function(response) {
-                    if (!response.ok) {
-                        throw new Error('文件加载失败，请确保 article.md 与 HTML 在同一目录');
-                    }
-                    return response.text();
-                })
-                .then(function(markdown) {
-                    // 使用 marked 将 Markdown 转为 HTML
-                    const html = marked.parse(markdown);
-                    container.innerHTML = html;
-                })
-                .catch(function(err) {
-                    container.innerHTML = `
-                        <div class="error">
-                            <p>⚠️ ${err.message}</p>
-                            <small>💡 请确保 article.md 文件与 index.html 在同一个文件夹中</small>
-                            <small style="display:block; margin-top:4px; color:#b0a090;">
-                                📁 文件夹/<br>
-                                &nbsp;&nbsp;├── index.html （此文件）<br>
-                                &nbsp;&nbsp;└── article.md （文章内容）
-                            </small>
-                        </div>
-                    `;
-                    console.error('文章加载失败:', err);
+        function togglePlay() {
+            if (video.paused) {
+                video.play().catch(function(err) {
+                    console.warn('播放失败:', err);
                 });
-        })();
-        // ⬆️ 新增结束 ⬆️
+            } else {
+                video.pause();
+            }
+        }
 
-    </script>
+        function updateUI() {
+            const isPaused = video.paused;
+            if (isPaused) {
+                playBtn.classList.remove('hidden');
+                ctrlPlayBtn.innerHTML = `
+                            <svg viewBox="0 0 24 24">
+                                <polygon points="5,3 19,12 5,21" />
+                            </svg>
+                        `;
+                ctrlPlayBtn.setAttribute('aria-label', '播放');
+                container.classList.remove('playing');
+            } else {
+                playBtn.classList.add('hidden');
+                ctrlPlayBtn.innerHTML = `
+                            <svg viewBox="0 0 24 24">
+                                <rect x="6" y="4" width="4" height="16" />
+                                <rect x="14" y="4" width="4" height="16" />
+                            </svg>
+                        `;
+                ctrlPlayBtn.setAttribute('aria-label', '暂停');
+                container.classList.add('playing');
+            }
+        }
+
+        // ---------- 事件绑定 ----------
+
+        // 中央大按钮
+        playBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            togglePlay();
+        });
+
+        // 控制栏小按钮
+        ctrlPlayBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            togglePlay();
+        });
+
+        // 点击容器（非控制栏区域）
+        container.addEventListener('click', function(e) {
+            if (e.target.closest('.video-controls') || e.target.closest('.play-btn')) {
+                return;
+            }
+            togglePlay();
+        });
+
+        // 视频事件
+        video.addEventListener('play', function() {
+            updateUI();
+            clearTimeout(controlsTimeout);
+        });
+        video.addEventListener('pause', function() {
+            updateUI();
+        });
+        video.addEventListener('ended', function() {
+            progressFill.style.width = '0%';
+            timeDisplay.textContent = '0:00 / ' + formatTime(video.duration);
+            updateUI();
+            container.classList.remove('playing');
+        });
+
+        video.addEventListener('loadedmetadata', function() {
+            updateProgress();
+            if (video.duration && isFinite(video.duration)) {
+                timeDisplay.textContent = '0:00 / ' + formatTime(video.duration);
+            }
+            errorEl.classList.remove('show');
+        });
+
+        video.addEventListener('timeupdate', function() {
+            if (!isDragging) {
+                updateProgress();
+            }
+        });
+
+        // 进度条点击
+        progressBar.addEventListener('click', function(e) {
+            const rect = progressBar.getBoundingClientRect();
+            let percent = (e.clientX - rect.left) / rect.width;
+            percent = Math.min(Math.max(percent, 0), 1);
+            if (video.duration && isFinite(video.duration)) {
+                video.currentTime = percent * video.duration;
+                updateProgress();
+            }
+        });
+
+        // 进度条拖拽（鼠标）
+        progressBar.addEventListener('mousedown', function(e) {
+            isDragging = true;
+            document.body.style.userSelect = 'none';
+            const rect = progressBar.getBoundingClientRect();
+            let percent = (e.clientX - rect.left) / rect.width;
+            percent = Math.min(Math.max(percent, 0), 1);
+            if (video.duration && isFinite(video.duration)) {
+                video.currentTime = percent * video.duration;
+                progressFill.style.width = percent * 100 + '%';
+            }
+            timeDisplay.textContent = formatTime(video.currentTime) + ' / ' + formatTime(video.duration);
+        });
+
+        document.addEventListener('mousemove', function(e) {
+            if (!isDragging) return;
+            const rect = progressBar.getBoundingClientRect();
+            let percent = (e.clientX - rect.left) / rect.width;
+            percent = Math.min(Math.max(percent, 0), 1);
+            if (video.duration && isFinite(video.duration)) {
+                video.currentTime = percent * video.duration;
+                progressFill.style.width = percent * 100 + '%';
+            }
+            timeDisplay.textContent = formatTime(video.currentTime) + ' / ' + formatTime(video.duration);
+        });
+
+        document.addEventListener('mouseup', function() {
+            if (isDragging) {
+                isDragging = false;
+                document.body.style.userSelect = '';
+                updateProgress();
+            }
+        });
+
+        // 进度条拖拽（触摸）
+        progressBar.addEventListener('touchstart', function(e) {
+            e.preventDefault();
+            isDragging = true;
+            const touch = e.touches[0];
+            const rect = progressBar.getBoundingClientRect();
+            let percent = (touch.clientX - rect.left) / rect.width;
+            percent = Math.min(Math.max(percent, 0), 1);
+            if (video.duration && isFinite(video.duration)) {
+                video.currentTime = percent * video.duration;
+                progressFill.style.width = percent * 100 + '%';
+            }
+            timeDisplay.textContent = formatTime(video.currentTime) + ' / ' + formatTime(video.duration);
+        }, { passive: false });
+
+        document.addEventListener('touchmove', function(e) {
+            if (!isDragging) return;
+            const touch = e.touches[0];
+            const rect = progressBar.getBoundingClientRect();
+            let percent = (touch.clientX - rect.left) / rect.width;
+            percent = Math.min(Math.max(percent, 0), 1);
+            if (video.duration && isFinite(video.duration)) {
+                video.currentTime = percent * video.duration;
+                progressFill.style.width = percent * 100 + '%';
+            }
+            timeDisplay.textContent = formatTime(video.currentTime) + ' / ' + formatTime(video.duration);
+        }, { passive: true });
+
+        document.addEventListener('touchend', function() {
+            if (isDragging) {
+                isDragging = false;
+                updateProgress();
+            }
+        });
+
+        // 双击全屏
+        container.addEventListener('dblclick', function() {
+            if (video.requestFullscreen) {
+                video.requestFullscreen().catch(function() {});
+            } else if (video.webkitRequestFullscreen) {
+                video.webkitRequestFullscreen();
+            }
+        });
+
+        // 键盘空格
+        document.addEventListener('keydown', function(e) {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+            if (e.key === ' ' || e.key === 'Space') {
+                e.preventDefault();
+                togglePlay();
+            }
+        });
+
+        // 视频加载错误
+        video.addEventListener('error', function() {
+            errorEl.classList.add('show');
+            console.warn('视频加载失败，请检查 src 地址。');
+        });
+
+        // ---------- 初始化 ----------
+        updateUI();
+        if (video.readyState >= 1) {
+            updateProgress();
+        } else {
+            timeDisplay.textContent = '0:00 / 0:00';
+        }
+
+        console.log('✅ 视频播放器已初始化 (企划嵌入版)');
+    })();
+
+    // =============================================================
+    // 文章加载 + 展开/收起功能
+    // =============================================================
+    (function() {
+        const container = document.getElementById('content');
+
+        // 从 article.md 加载文章
+        fetch('article.md')
+            .then(function(response) {
+                if (!response.ok) {
+                    throw new Error('文件加载失败，请确保 article.md 与 HTML 在同一目录');
+                }
+                return response.text();
+            })
+            .then(function(markdown) {
+                // 用 marked 将 Markdown 转为 HTML
+                const fullHtml = marked.parse(markdown);
+
+                // 构建文章结构：包含 body 和 toggle 按钮
+                const wrapper = document.createElement('div');
+
+                // 文章主体（包含全部内容）
+                const bodyDiv = document.createElement('div');
+                bodyDiv.className = 'article-body collapsed';
+                bodyDiv.innerHTML = fullHtml;
+                wrapper.appendChild(bodyDiv);
+
+                // 展开/收起按钮
+                const toggleBtn = document.createElement('button');
+                toggleBtn.className = 'toggle-btn';
+                toggleBtn.innerHTML = `
+                            <span class="arrow" id="arrowIcon">▼</span>
+                            <span id="btnText">展开全文</span>
+                        `;
+                toggleBtn.setAttribute('aria-expanded', 'false');
+
+                let isExpanded = false;
+
+                toggleBtn.addEventListener('click', function() {
+                    isExpanded = !isExpanded;
+                    const body = bodyDiv;
+                    const arrow = document.getElementById('arrowIcon');
+                    const btnText = document.getElementById('btnText');
+
+                    if (isExpanded) {
+                        body.classList.remove('collapsed');
+                        body.classList.add('expanded');
+                        arrow.classList.add('open');
+                        btnText.textContent = '收起全文';
+                        toggleBtn.setAttribute('aria-expanded', 'true');
+                    } else {
+                        body.classList.remove('expanded');
+                        body.classList.add('collapsed');
+                        arrow.classList.remove('open');
+                        btnText.textContent = '展开全文';
+                        toggleBtn.setAttribute('aria-expanded', 'false');
+                        // 滚动到按钮位置，方便继续操作
+                        toggleBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    }
+                });
+
+                wrapper.appendChild(toggleBtn);
+
+                // 清空容器并插入新内容
+                container.innerHTML = '';
+                container.appendChild(wrapper);
+            })
+            .catch(function(err) {
+                container.innerHTML = `
+                            <div class="error">
+                                <p>⚠️ ${err.message}</p>
+                                <small>💡 请确保 article.md 文件与 index.html 在同一个文件夹中</small>
+                                <small style="display:block; margin-top:4px; color:#b0a090;">
+                                    📁 文件夹/<br>
+                                    &nbsp;&nbsp;├── index.html （此文件）<br>
+                                    &nbsp;&nbsp;└── article.md （文章内容）
+                                </small>
+                            </div>
+                        `;
+                console.error('文章加载失败:', err);
+            });
+    })();
+</script>
 
 </body>
 
