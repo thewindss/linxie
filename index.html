@@ -793,16 +793,31 @@
         </div>
     </div>
 
-    <!-- ===== 14:00 时间块 ===== -->
-    <div class="time-block">
-        <div class="time-header">
-            <h1>14:00</h1>
-            <div class="sub-label">【星星】 · 文</div>
-        </div>
-        <div class="article-container" id="content14" data-src="article14.md">
+<!-- ===== 14:00 时间块（分页版） ===== -->
+<div class="time-block">
+    <div class="time-header">
+        <h1>14:00</h1>
+        <div class="sub-label">【星星】 · 文</div>
+    </div>
+
+    <!-- 分页文章容器 -->
+    <div class="article-container" id="content14">
+        <!-- 文章内容将由 JavaScript 动态渲染 -->
+        <div class="article-content" id="articleContent14">
             <div class="loading">📖 文章加载中</div>
         </div>
+
+        <!-- 分页信息 -->
+        <div class="page-info" id="pageInfo14">
+            第 <span id="currentPage14">1</span> 页 / 共 <span id="totalPages14">0</span> 页
+        </div>
+
+        <!-- 页码导航 -->
+        <nav class="pagination-nav" id="paginationNav14" aria-label="文章分页导航">
+            <!-- 由 JavaScript 动态生成 -->
+        </nav>
     </div>
+</div>
 
     <!-- ===== 15:00 时间块 ===== -->
     <div class="time-block">
@@ -1202,6 +1217,221 @@
         });
 
         console.log('📖 共找到 ' + containers.length + ' 个文章容器，开始加载...');
+
+    })();
+
+        // =============================================================
+    // 为 【星星】 时间块（content14）单独加载分页文章
+    // =============================================================
+    (function() {
+        'use strict';
+
+        // ----- 配置 -----
+        const CONTAINER_ID = 'content14';
+        const MARKDOWN_FILE = 'article14.md';   // 请确保该文件存在
+        const BLOCKS_PER_PAGE = 7;              // 每页显示的内容块数
+
+        // ----- DOM 引用 -----
+        const container = document.getElementById(CONTAINER_ID);
+        if (!container) return;
+
+        const contentEl = document.getElementById('articleContent14');
+        const currentPageSpan = document.getElementById('currentPage14');
+        const totalPagesSpan = document.getElementById('totalPages14');
+        const paginationNav = document.getElementById('paginationNav14');
+
+        // ----- 状态 -----
+        let contentBlocks = [];
+        let totalPages = 0;
+        let currentPage = 1;
+
+        // ----- 辅助函数 -----
+        function formatTime(seconds) {
+            if (!seconds || isNaN(seconds) || seconds < 0) return '0:00';
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return mins + ':' + (secs < 10 ? '0' : '') + secs;
+        }
+
+        // 将 Markdown 解析为内容块（顶级元素）
+        function parseMarkdownToBlocks(markdown) {
+            const html = marked.parse(markdown);
+            const wrapper = document.createElement('div');
+            wrapper.innerHTML = html;
+            const children = Array.from(wrapper.childNodes).filter(node => {
+                if (node.nodeType === Node.TEXT_NODE) {
+                    return node.textContent.trim().length > 0;
+                }
+                return true;
+            });
+            return children.map(node => {
+                if (node.nodeType === Node.ELEMENT_NODE) {
+                    return node.outerHTML;
+                } else {
+                    return `<p>${node.textContent.trim()}</p>`;
+                }
+            });
+        }
+
+        // 获取指定页的内容块
+        function getBlocksForPage(page) {
+            const start = (page - 1) * BLOCKS_PER_PAGE;
+            const end = Math.min(start + BLOCKS_PER_PAGE, contentBlocks.length);
+            return contentBlocks.slice(start, end);
+        }
+
+        // 渲染文章内容
+        function renderContent(page) {
+            const blocks = getBlocksForPage(page);
+            if (blocks.length === 0) {
+                contentEl.innerHTML = '<p style="text-align:center; color:#b0a090;">✨ 此页暂无内容</p>';
+                return;
+            }
+            contentEl.innerHTML = blocks.join('');
+        }
+
+        // 更新页码显示
+        function updatePageInfo(page) {
+            currentPageSpan.textContent = page;
+            totalPagesSpan.textContent = totalPages;
+        }
+
+        // 生成页码导航
+        function renderPagination(page) {
+            const maxVisible = 7;
+            let buttons = [];
+
+            // 上一页
+            const prevBtn = document.createElement('button');
+            prevBtn.className = 'page-btn nav-btn';
+            prevBtn.textContent = '‹ 上一页';
+            prevBtn.disabled = (page === 1);
+            prevBtn.addEventListener('click', function() {
+                if (page > 1) goToPage(page - 1);
+            });
+            buttons.push(prevBtn);
+
+            // 数字按钮
+            let pagesToShow = [];
+            if (totalPages <= maxVisible) {
+                for (let i = 1; i <= totalPages; i++) pagesToShow.push(i);
+            } else {
+                pagesToShow.push(1);
+                let left = Math.max(2, page - 2);
+                let right = Math.min(totalPages - 1, page + 2);
+                if (page <= 3) right = Math.min(totalPages - 1, 5);
+                if (page >= totalPages - 2) left = Math.max(2, totalPages - 4);
+                if (left > 2) pagesToShow.push('ellipsis');
+                for (let i = left; i <= right; i++) pagesToShow.push(i);
+                if (right < totalPages - 1) pagesToShow.push('ellipsis');
+                if (pagesToShow[pagesToShow.length - 1] !== totalPages) {
+                    if (pagesToShow[pagesToShow.length - 1] === 'ellipsis') pagesToShow.pop();
+                    pagesToShow.push(totalPages);
+                }
+                // 去除连续省略号
+                const cleaned = [];
+                let lastWasEllipsis = false;
+                for (const item of pagesToShow) {
+                    if (item === 'ellipsis') {
+                        if (!lastWasEllipsis) { cleaned.push(item);
+                            lastWasEllipsis = true; }
+                    } else { cleaned.push(item);
+                        lastWasEllipsis = false; }
+                }
+                pagesToShow = cleaned;
+            }
+
+            for (const item of pagesToShow) {
+                if (item === 'ellipsis') {
+                    const span = document.createElement('span');
+                    span.className = 'ellipsis';
+                    span.textContent = '…';
+                    buttons.push(span);
+                } else {
+                    const btn = document.createElement('button');
+                    btn.className = 'page-btn';
+                    if (item === page) btn.classList.add('active');
+                    btn.textContent = item;
+                    btn.addEventListener('click', function() {
+                        if (item !== page) goToPage(item);
+                    });
+                    buttons.push(btn);
+                }
+            }
+
+            // 下一页
+            const nextBtn = document.createElement('button');
+            nextBtn.className = 'page-btn nav-btn';
+            nextBtn.textContent = '下一页 ›';
+            nextBtn.disabled = (page === totalPages);
+            nextBtn.addEventListener('click', function() {
+                if (page < totalPages) goToPage(page + 1);
+            });
+            buttons.push(nextBtn);
+
+            paginationNav.innerHTML = '';
+            buttons.forEach(el => paginationNav.appendChild(el));
+        }
+
+        // 跳转到指定页
+        function goToPage(page) {
+            if (page < 1) page = 1;
+            if (page > totalPages) page = totalPages;
+            if (page === currentPage && contentBlocks.length > 0) return;
+            currentPage = page;
+            renderContent(page);
+            updatePageInfo(page);
+            renderPagination(page);
+            // 滚动到文章顶部
+            const wrapper = container.closest('.time-block');
+            if (wrapper) wrapper.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // ----- 加载文章 -----
+        function loadArticle() {
+            contentEl.innerHTML = '<div class="loading">📖 正在加载文章…</div>';
+            paginationNav.innerHTML = '';
+
+            fetch(MARKDOWN_FILE)
+                .then(function(response) {
+                    if (!response.ok) throw new Error('无法加载 ' + MARKDOWN_FILE + '，状态码：' + response.status);
+                    return response.text();
+                })
+                .then(function(markdown) {
+                    contentBlocks = parseMarkdownToBlocks(markdown);
+                    if (contentBlocks.length === 0) throw new Error('文章内容为空');
+                    totalPages = Math.ceil(contentBlocks.length / BLOCKS_PER_PAGE);
+                    if (totalPages === 0) totalPages = 1;
+                    currentPage = 1;
+                    renderContent(currentPage);
+                    updatePageInfo(currentPage);
+                    renderPagination(currentPage);
+                    console.log('✅ 【星星】文章分页加载成功 · 共 ' + contentBlocks.length + ' 块 · ' + totalPages + ' 页');
+                })
+                .catch(function(err) {
+                    contentEl.innerHTML = `
+                                <div class="error">
+                                    <p>⚠️ ${err.message}</p>
+                                    <small>💡 请确保 <strong>${MARKDOWN_FILE}</strong> 文件与 HTML 在同一目录下。</small>
+                                    <small style="display:block; margin-top:6px; color:#b0a090;">
+                                        📁 文件夹/<br>
+                                        &nbsp;&nbsp;├── index.html （此文件）<br>
+                                        &nbsp;&nbsp;└── ${MARKDOWN_FILE} （文章内容）
+                                    </small>
+                                </div>
+                            `;
+                    paginationNav.innerHTML = '';
+                    totalPagesSpan.textContent = '0';
+                    currentPageSpan.textContent = '0';
+                    console.error('文章加载失败:', err);
+                });
+        }
+
+        // ----- 启动 -----
+        loadArticle();
+
+        // 暴露 goToPage 以便调试（可选）
+        window.goToPage14 = goToPage;
 
     })();
 </script>
