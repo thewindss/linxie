@@ -1009,29 +1009,39 @@
         </div>
     </div>
 
-<!-- ===== 21:00 时间块（分页版） ===== -->
+<!-- ===== 21:00 时间块（星星 · 分页 + 展开/收起） ===== -->
 <div class="time-block">
     <div class="time-header">
         <h1>21:00</h1>
         <div class="sub-label">【星星】 · 文</div>
     </div>
 
-    <!-- 分页文章容器 -->
     <div class="article-container" id="content21">
-        <!-- 文章内容区域 -->
-        <div class="article-content" id="articleContent21">
+
+        <!-- 预览区域（折叠时显示） -->
+        <div class="preview-content" id="preview21">
             <div class="loading">📖 文章加载中</div>
         </div>
 
-        <!-- 分页信息 -->
-        <div class="page-info">
-            第 <span class="current-page">1</span> 页 / 共 <span class="total-pages">0</span> 页
+        <!-- 分页内容（展开后显示） -->
+        <div class="pagination-wrapper" id="paginationWrapper21" style="display: none;">
+            <div class="article-content" id="articleContent21">
+                <div class="loading">📖 文章加载中</div>
+            </div>
+            <div class="page-info">
+                第 <span class="current-page">1</span> 页 / 共 <span class="total-pages">0</span> 页
+            </div>
+            <nav class="pagination-nav" aria-label="文章分页导航">
+                <!-- 由 JavaScript 动态生成 -->
+            </nav>
         </div>
 
-        <!-- 页码导航 -->
-        <nav class="pagination-nav" aria-label="文章分页导航">
-            <!-- 由 JavaScript 动态生成 -->
-        </nav>
+        <!-- 展开/收起按钮 -->
+        <button class="toggle-btn" id="toggleBtn21">
+            <span class="arrow">▼</span>
+            <span>展开全文</span>
+        </button>
+
     </div>
 </div>
         
@@ -1618,6 +1628,265 @@
 })();
 
 
+    // =============================================================
+// 【21:00 星星】专用：分页 + 展开/收起
+// =============================================================
+(function() {
+    'use strict';
+
+    const container = document.getElementById('content21');
+    if (!container) return;
+
+    const previewEl = document.getElementById('preview21');
+    const paginationWrapper = document.getElementById('paginationWrapper21');
+    const toggleBtn = document.getElementById('toggleBtn21');
+    const contentEl = document.getElementById('articleContent21');
+    const currentPageSpan = container.querySelector('.current-page');
+    const totalPagesSpan = container.querySelector('.total-pages');
+    const paginationNav = container.querySelector('.pagination-nav');
+
+    const MARKDOWN_FILE = 'article21.md';          // 请确保文件名正确
+    const PREVIEW_BLOCKS = 5;                      // 预览显示前 5 个块
+    const BLOCKS_PER_PAGE = 80;                    // 每页 80 块（符合您的要求）
+
+    let isExpanded = false;
+    let contentBlocks = [];
+    let totalPages = 0;
+    let currentPage = 1;
+
+    // ----- 工具函数：解析 Markdown 为块 -----
+    function parseMarkdownToBlocks(markdown) {
+        const html = marked.parse(markdown);
+        const wrapper = document.createElement('div');
+        wrapper.innerHTML = html;
+        const children = Array.from(wrapper.childNodes).filter(node => {
+            if (node.nodeType === Node.TEXT_NODE) {
+                return node.textContent.trim().length > 0;
+            }
+            return true;
+        });
+        return children.map(node => {
+            if (node.nodeType === Node.ELEMENT_NODE) {
+                return node.outerHTML;
+            } else {
+                return `<p>${node.textContent.trim()}</p>`;
+            }
+        });
+    }
+
+    // ----- 渲染预览（前 PREVIEW_BLOCKS 个块） -----
+    function renderPreview() {
+        const previewBlocks = contentBlocks.slice(0, PREVIEW_BLOCKS);
+        if (previewBlocks.length === 0) {
+            previewEl.innerHTML = '<p style="text-align:center; color:#b0a090;">✨ 暂无预览内容</p>';
+        } else {
+            previewEl.innerHTML = previewBlocks.join('');
+            // 添加“…”表示有更多内容
+            if (contentBlocks.length > PREVIEW_BLOCKS) {
+                const more = document.createElement('p');
+                more.style.cssText = 'text-align:center; color:#b0a090; font-style:italic; margin-top:8px;';
+                more.textContent = '…… 点击下方展开全文 ……';
+                previewEl.appendChild(more);
+            }
+        }
+    }
+
+    // ----- 分页相关函数 -----
+    function getBlocksForPage(page) {
+        const start = (page - 1) * BLOCKS_PER_PAGE;
+        const end = Math.min(start + BLOCKS_PER_PAGE, contentBlocks.length);
+        return contentBlocks.slice(start, end);
+    }
+
+    function renderContent(page) {
+        const blocks = getBlocksForPage(page);
+        if (blocks.length === 0) {
+            contentEl.innerHTML = '<p style="text-align:center; color:#b0a090;">✨ 此页暂无内容</p>';
+            return;
+        }
+        contentEl.innerHTML = blocks.join('');
+    }
+
+    function updatePageInfo(page) {
+        if (currentPageSpan) currentPageSpan.textContent = page;
+        if (totalPagesSpan) totalPagesSpan.textContent = totalPages;
+    }
+
+    function renderPagination(page) {
+        const maxVisible = 7;
+        let buttons = [];
+
+        // 上一页
+        const prevBtn = document.createElement('button');
+        prevBtn.className = 'page-btn nav-btn';
+        prevBtn.textContent = '‹ 上一页';
+        prevBtn.disabled = (page === 1);
+        prevBtn.addEventListener('click', function() {
+            if (page > 1) goToPage(page - 1);
+        });
+        buttons.push(prevBtn);
+
+        // 数字按钮
+        let pagesToShow = [];
+        if (totalPages <= maxVisible) {
+            for (let i = 1; i <= totalPages; i++) pagesToShow.push(i);
+        } else {
+            pagesToShow.push(1);
+            let left = Math.max(2, page - 2);
+            let right = Math.min(totalPages - 1, page + 2);
+            if (page <= 3) right = Math.min(totalPages - 1, 5);
+            if (page >= totalPages - 2) left = Math.max(2, totalPages - 4);
+            if (left > 2) pagesToShow.push('ellipsis');
+            for (let i = left; i <= right; i++) pagesToShow.push(i);
+            if (right < totalPages - 1) pagesToShow.push('ellipsis');
+            if (pagesToShow[pagesToShow.length - 1] !== totalPages) {
+                if (pagesToShow[pagesToShow.length - 1] === 'ellipsis') pagesToShow.pop();
+                pagesToShow.push(totalPages);
+            }
+            const cleaned = [];
+            let lastWasEllipsis = false;
+            for (const item of pagesToShow) {
+                if (item === 'ellipsis') {
+                    if (!lastWasEllipsis) { cleaned.push(item);
+                        lastWasEllipsis = true; }
+                } else { cleaned.push(item);
+                    lastWasEllipsis = false; }
+            }
+            pagesToShow = cleaned;
+        }
+
+        for (const item of pagesToShow) {
+            if (item === 'ellipsis') {
+                const span = document.createElement('span');
+                span.className = 'ellipsis';
+                span.textContent = '…';
+                buttons.push(span);
+            } else {
+                const btn = document.createElement('button');
+                btn.className = 'page-btn';
+                if (item === page) btn.classList.add('active');
+                btn.textContent = item;
+                btn.addEventListener('click', function() {
+                    if (item !== page) goToPage(item);
+                });
+                buttons.push(btn);
+            }
+        }
+
+        // 下一页
+        const nextBtn = document.createElement('button');
+        nextBtn.className = 'page-btn nav-btn';
+        nextBtn.textContent = '下一页 ›';
+        nextBtn.disabled = (page === totalPages);
+        nextBtn.addEventListener('click', function() {
+            if (page < totalPages) goToPage(page + 1);
+        });
+        buttons.push(nextBtn);
+
+        paginationNav.innerHTML = '';
+        buttons.forEach(el => paginationNav.appendChild(el));
+    }
+
+    function goToPage(page) {
+        if (page < 1) page = 1;
+        if (page > totalPages) page = totalPages;
+        if (page === currentPage && contentBlocks.length > 0) return;
+        currentPage = page;
+        renderContent(page);
+        updatePageInfo(page);
+        renderPagination(page);
+        const wrapper = container.closest('.time-block');
+        if (wrapper) wrapper.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    // ----- 展开/收起切换 -----
+    function toggleExpand() {
+        isExpanded = !isExpanded;
+        const arrow = toggleBtn.querySelector('.arrow');
+        const btnText = toggleBtn.querySelector('span:last-child');
+
+        if (isExpanded) {
+            // 展开：隐藏预览，显示分页
+            previewEl.style.display = 'none';
+            paginationWrapper.style.display = 'block';
+            arrow.classList.add('open');
+            btnText.textContent = '收起全文';
+            // 确保分页内容已渲染
+            if (contentBlocks.length > 0) {
+                goToPage(1); // 跳转到第一页
+            }
+        } else {
+            // 收起：显示预览，隐藏分页
+            previewEl.style.display = 'block';
+            paginationWrapper.style.display = 'none';
+            arrow.classList.remove('open');
+            btnText.textContent = '展开全文';
+            // 滚动到按钮位置
+            toggleBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+    }
+
+    // ----- 加载文章 -----
+    function loadArticle() {
+        previewEl.innerHTML = '<div class="loading">📖 文章加载中</div>';
+        contentEl.innerHTML = '<div class="loading">📖 文章加载中</div>';
+        paginationNav.innerHTML = '';
+
+        fetch(MARKDOWN_FILE)
+            .then(function(response) {
+                if (!response.ok) throw new Error('无法加载 ' + MARKDOWN_FILE);
+                return response.text();
+            })
+            .then(function(markdown) {
+                contentBlocks = parseMarkdownToBlocks(markdown);
+                if (contentBlocks.length === 0) throw new Error('文章内容为空');
+
+                // 计算总页数
+                totalPages = Math.ceil(contentBlocks.length / BLOCKS_PER_PAGE);
+                if (totalPages === 0) totalPages = 1;
+
+                // 渲染预览
+                renderPreview();
+
+                // 初始化分页（第一页）
+                currentPage = 1;
+                renderContent(currentPage);
+                updatePageInfo(currentPage);
+                renderPagination(currentPage);
+
+                // 默认收起状态：显示预览，隐藏分页
+                previewEl.style.display = 'block';
+                paginationWrapper.style.display = 'none';
+
+                console.log('✅ 【21:00 星星】文章加载成功 · 共 ' + contentBlocks.length + ' 块 · ' + totalPages + ' 页');
+            })
+            .catch(function(err) {
+                previewEl.innerHTML = `
+                            <div class="error">
+                                <p>⚠️ ${err.message}</p>
+                                <small>💡 请确保 <strong>${MARKDOWN_FILE}</strong> 文件与 HTML 在同一目录下。</small>
+                                <small style="display:block; margin-top:6px; color:#b0a090;">
+                                    📁 文件夹/<br>
+                                    &nbsp;&nbsp;├── index.html （此文件）<br>
+                                    &nbsp;&nbsp;└── ${MARKDOWN_FILE} （文章内容）
+                                </small>
+                            </div>
+                        `;
+                paginationWrapper.style.display = 'none';
+                toggleBtn.style.display = 'none';
+                console.error('文章加载失败:', err);
+            });
+    }
+
+    // ----- 事件绑定 -----
+    toggleBtn.addEventListener('click', toggleExpand);
+
+    // ----- 启动 -----
+    loadArticle();
+
+})();
+
+
         // =============================================================
     // 通用分页函数（可复用）
     // =============================================================
@@ -1816,8 +2085,7 @@
         // ----- 启动 -----
         loadArticle();
     }
-    // 为 21:00 启用分页
-initPagination('content21', 'article21.md', 80);
+
 </script>
 
 </body>
